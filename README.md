@@ -1,3 +1,5 @@
+> **changes:** I changed original code to extend the possibility to generate normal image asset based on source image and 1x scale size. For instance, I have a 512x512 back.png and want to generate an image asset with 1x scale size of 44x44, execute as ```python generator.py --image back.png --size 44``` and the script will do the rest of the work. Below is original description of the [project](https://github.com/APSL/AssetsGenerator):
+
 AssetsGenerator
 ===============
 

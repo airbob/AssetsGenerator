@@ -8,6 +8,52 @@ import json
 import argparse
 from PIL import Image
 
+def resize_icon_images(icon_filename,targetScaleSize):
+    sizes = [int(targetScaleSize), int(targetScaleSize)*2, int(targetScaleSize)*3]
+    image_name = icon_filename
+    contents = {
+        "info": {
+            "version": 1,
+            "author": "xcode"
+        }
+    }
+
+    if os.path.isfile(image_name) is False:
+        sys.exit("Missing {0} file".format(image_name))
+
+    img = Image.open(image_name)
+
+    # Create Assets folder
+    current_dir = os.getcwd()
+    imageName = image_name[:-4]
+    asset_dir = "{0}/{1}.imageset".format(current_dir,imageName)
+    if not os.path.exists(asset_dir):
+        os.makedirs(asset_dir)
+    os.chdir(asset_dir)
+    print (asset_dir)
+
+    # Generate images
+    images = []
+    for size in sizes:
+        i = img.resize((size, size), Image.ANTIALIAS)
+
+        imageScale = '{0}x'.format(int(int(size)/int(targetScaleSize)))
+        img_filename = "{0}@{1}.png".format(imageName,imageScale)
+        i.save(img_filename, format="PNG")
+        imageSize = '{0}x{0}'.format(size)
+        asset_entry = {
+            "idiom": "universal",
+            "filename": img_filename,
+            "scale": imageScale
+        }
+        images.append(asset_entry)
+
+    contents["images"] = images
+    file = open("Contents.json", "w")
+    file.write(json.dumps(contents))
+    file.close()
+
+
 
 def generate_icon_images(icon_filename):
     sizes = [29, 40, 50, 57, 58, 72, 76, 80, 87, 100, 114, 120, 144, 152, 180]
@@ -34,7 +80,7 @@ def generate_icon_images(icon_filename):
     if not os.path.exists(asset_dir):
         os.makedirs(asset_dir)
     os.chdir(asset_dir)
-    print asset_dir
+    print (asset_dir)
 
     # Generate images
     images = []
@@ -222,7 +268,7 @@ def generate_launch_image(image_name):
     if not os.path.exists(asset_dir):
         os.makedirs(asset_dir)
     os.chdir(asset_dir)
-    print asset_dir
+    print (asset_dir)
 
     # Generate images
     images = []
@@ -310,11 +356,18 @@ if __name__ == '__main__':
                         help="Generate launch image assets")
     parser.add_argument("--icon",
                         help="Generate icons assets")
+    parser.add_argument("--image",
+                        help="Generate normal image assets")
+    parser.add_argument("--size",
+                        help="Generate icons size")
     parser.parse_args()
     args = parser.parse_args()
+    print(args)
     if args.launchimage:
-        print "Generating launch image with image {0}".format(args.launchimage)
+        print ("Generating launch image with image {0}".format(args.launchimage))
         generate_launch_image(args.launchimage)
     if args.icon:
-        print "Generating icons with image {0}".format(args.icon)
         generate_icon_images(args.icon)
+    if args.image:
+        resize_icon_images(args.image,args.size)
+
